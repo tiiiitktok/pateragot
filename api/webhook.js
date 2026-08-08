@@ -48,12 +48,14 @@ function normalize(payload) {
   const name = customerName(payload.customer);
 
   if (payload.event === 'user_joined') {
-    const src = payload.tracking?.utm_source;
     return {
       id: `lead_${payload.customer?.telegram_id || Date.now()}_${payload.timestamp || ''}`,
       type: 'lead',
-      subtitle: src ? `${name} · via ${src}` : name,
-      value: null,
+      customer: name,
+      product: null,
+      gateway: null,
+      amount: null,
+      utm_source: payload.tracking?.utm_source || null,
       timestamp: payload.timestamp || new Date().toISOString(),
     };
   }
@@ -63,8 +65,11 @@ function normalize(payload) {
     return {
       id: `pending_${t.id || Date.now()}`,
       type: 'pendente',
-      subtitle: t.plan_name ? `${name} — ${t.plan_name}` : name,
-      value: t.amount ?? null,
+      customer: name,
+      product: t.plan_name || null,
+      gateway: t.gateway || null,
+      amount: t.amount ?? null,
+      utm_source: payload.tracking?.utm_source || null,
       timestamp: payload.timestamp || t.created_at || new Date().toISOString(),
     };
   }
@@ -74,9 +79,29 @@ function normalize(payload) {
     return {
       id: `paid_${t.id || Date.now()}`,
       type: 'pago',
-      subtitle: t.plan_name ? `${name} — ${t.plan_name}` : name,
-      value: t.amount ?? null,
+      customer: name,
+      product: t.plan_name || null,
+      gateway: t.gateway || null,
+      amount: t.amount ?? null,
+      utm_source: payload.tracking?.utm_source || null,
       timestamp: t.paid_at || payload.timestamp || new Date().toISOString(),
+    };
+  }
+
+  // suporte opcional para estorno, caso sua plataforma envie esse evento
+  // (ex: "payment_refunded" ou "payment_reversed") — ajuste o nome abaixo
+  // se o evento real da sua plataforma tiver outro nome.
+  if (payload.event === 'payment_refunded' || payload.event === 'payment_reversed') {
+    const t = payload.transaction || {};
+    return {
+      id: `refund_${t.id || Date.now()}`,
+      type: 'estornado',
+      customer: name,
+      product: t.plan_name || null,
+      gateway: t.gateway || null,
+      amount: t.amount ?? null,
+      utm_source: payload.tracking?.utm_source || null,
+      timestamp: payload.timestamp || new Date().toISOString(),
     };
   }
 

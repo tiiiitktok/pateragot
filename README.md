@@ -1,18 +1,39 @@
 # PanteraGot
 
-Site de notificações de vendas em tempo real, com recebimento real de webhooks.
+Painel completo de notificações de vendas em tempo real, com recebimento
+real de webhooks — dashboard, transações, gateways, taxas, notificações
+e configurações, tudo em uma página só.
 
 ## Estrutura
 
 ```
-index.html        → site (dashboard demo + feed de notificações)
-api/webhook.js     → recebe os webhooks do seu bot/gateway
-api/events.js      → devolve os últimos eventos pro site mostrar
+index.html        → o painel inteiro (SPA): Dashboard, Transações, Gateways,
+                      Taxas, Notificações e Configurações
+api/webhook.js      → recebe os webhooks do seu bot/gateway
+api/events.js        → devolve os últimos eventos pro painel mostrar
 ```
 
-O `index.html` funciona sozinho (modo demo). As duas funções em `api/` são
-o que faz o site virar "de verdade" — a Vercel detecta a pasta `api/`
-automaticamente, não precisa configurar nada de build.
+O `index.html` funciona sozinho (modo demo, com dados de exemplo). As duas
+funções em `api/` são o que faz o painel virar "de verdade" — a Vercel
+detecta a pasta `api/` automaticamente, não precisa configurar build.
+
+## O que tem em cada página
+
+- **Dashboard** — total pago, total gerado, ticket médio, taxa de conversão,
+  vendas por produto, vendas por meio de pagamento e movimentações recentes.
+- **Transações** — tabela filtrável por status, com exportação em CSV.
+- **Gateways** — cadastro de gateways (nome + tipo: Bynet, Mangofy, Vega
+  Checkout, BravoPay, PinPay, Cloudfy Checkout).
+- **Taxas** — regras de taxa por gateway (% ou R$).
+- **Notificações** — ativa notificações reais do navegador (usa a API
+  `Notification` de verdade) e deixa você escolher o que notificar e o que
+  mostrar na notificação (valor, nome do cliente).
+- **Configurações** — mostra a URL do webhook pronta pra copiar e colar na
+  sua plataforma de pagamento.
+
+Assim que o primeiro webhook real chegar, o selo no topo troca de
+**"demo"** para **"ao vivo"** e os dados de exemplo somem, dando lugar aos
+seus dados reais.
 
 ## Passo a passo para ativar os webhooks reais
 
